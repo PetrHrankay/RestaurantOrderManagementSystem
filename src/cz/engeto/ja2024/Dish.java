@@ -10,11 +10,11 @@ public class Dish {
     private int preparationTimeInMinutes;
     private String image;
 
-    public Dish(int dishId, String title, BigDecimal price, int preparationTimeInMinutes, String image) {
+    public Dish(int dishId, String title, BigDecimal price, int preparationTimeInMinutes, String image) throws DishException {
         this.dishId = dishId;
         this.title = title;
         this.price = price;
-        this.preparationTimeInMinutes = preparationTimeInMinutes;
+        setPreparationTimeInMinutes(preparationTimeInMinutes);
         this.image = image;
     }
 
@@ -46,8 +46,14 @@ public class Dish {
         return preparationTimeInMinutes;
     }
 
-    public void setPreparationTimeInMinutes(int preparationTimeInMinutes) {
-        this.preparationTimeInMinutes = preparationTimeInMinutes;
+    public void setPreparationTimeInMinutes(int preparationTimeInMinutes) throws DishException {
+        if (preparationTimeInMinutes >= 0) {
+            this.preparationTimeInMinutes = preparationTimeInMinutes;
+        } else {
+            throw new DishException(
+                    "The entered preparation time must be greater than 0. You entered" + preparationTimeInMinutes);
+        }
+
     }
 
     public String getImage() {
@@ -56,5 +62,16 @@ public class Dish {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    @Override
+    public String toString() {
+        return "Dish{" +
+                "dishId=" + dishId +
+                ", title='" + title + '\'' +
+                ", price=" + price +
+                ", preparationTimeInMinutes=" + preparationTimeInMinutes +
+                ", image='" + image + '\'' +
+                '}';
     }
 }
