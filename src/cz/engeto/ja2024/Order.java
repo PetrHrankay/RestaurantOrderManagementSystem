@@ -9,16 +9,14 @@ public class Order {
     private int quantityOrdered;
     private LocalDateTime orderedTime;
     private LocalDateTime fulfilmentTime;
-    private boolean isFulfilled;
     private boolean isPaid;
 
-    public Order(int tableNumber, Dish orderedDishId, int quantityOrdered, LocalDateTime orderedTime, LocalDateTime fulfilmentTime, boolean isFulfilled, boolean isPaid) {
+    public Order(int tableNumber, Dish orderedDishId, int quantityOrdered, LocalDateTime orderedTime, LocalDateTime fulfilmentTime, boolean isPaid) {
         this.tableNumber = tableNumber;
         this.orderedDishId = orderedDishId;
         this.quantityOrdered = quantityOrdered;
         this.orderedTime = orderedTime;
         this.fulfilmentTime = fulfilmentTime;
-        this.isFulfilled = isFulfilled;
         this.isPaid = isPaid;
     }
 
@@ -62,19 +60,21 @@ public class Order {
         this.fulfilmentTime = fulfilmentTime;
     }
 
-    public boolean isFulfilled() {
-        return isFulfilled;
-    }
-
-    public void setFulfilled(boolean fulfilled) {
-        isFulfilled = fulfilled;
-    }
-
     public boolean isPaid() {
         return isPaid;
     }
 
     public void setPaid(boolean paid) {
         isPaid = paid;
+    }
+
+    public String isFulfilled() {
+        String message;
+        if (fulfilmentTime != null) {
+            message = "The order was fulfilled at: " + fulfilmentTime;
+        } else {
+            message = "The order has not been fulfilled yet";
+        }
+        return message;
     }
 }
