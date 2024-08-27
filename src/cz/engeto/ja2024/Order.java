@@ -19,7 +19,13 @@ public class Order {
         this.fulfilmentTime = fulfilmentTime;
         this.isPaid = isPaid;
     }
-    
+    public Order(int tableNumber, Dish orderedDishId, int quantityOrdered, boolean isPaid) {
+        this.tableNumber = tableNumber;
+        this.orderedDishId = orderedDishId;
+        this.quantityOrdered = quantityOrdered;
+        this.isPaid = isPaid;
+        this.orderedTime = LocalDateTime.now();
+    }
 
     public int getTableNumber() {
         return tableNumber;
