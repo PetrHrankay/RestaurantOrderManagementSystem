@@ -1,6 +1,8 @@
 package cz.engeto.ja2024;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Dish {
 
@@ -10,12 +12,15 @@ public class Dish {
     private int preparationTimeInMinutes;
     private String image;
 
+    private static List<Dish> cookBook = new ArrayList<>();
+
     public Dish(int dishId, String title, BigDecimal price, int preparationTimeInMinutes, String image) throws DishException {
         this.dishId = dishId;
         this.title = title;
         this.price = price;
         setPreparationTimeInMinutes(preparationTimeInMinutes);
         this.image = image;
+        cookBook.add(this);
     }
 
     public int getDishId() {
@@ -46,22 +51,25 @@ public class Dish {
         return preparationTimeInMinutes;
     }
 
-    public void setPreparationTimeInMinutes(int preparationTimeInMinutes) throws DishException {
-        if (preparationTimeInMinutes >= 0) {
-            this.preparationTimeInMinutes = preparationTimeInMinutes;
-        } else {
-            throw new DishException(
-                    "The entered preparation time must be greater than 0. You entered" + preparationTimeInMinutes);
-        }
-
-    }
-
     public String getImage() {
         return image;
     }
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public void setPreparationTimeInMinutes(int preparationTimeInMinutes) throws DishException {
+        if (preparationTimeInMinutes >= 0) {
+            this.preparationTimeInMinutes = preparationTimeInMinutes;
+        } else {
+            throw new DishException(
+                    "The entered preparation time must be greater than 0. You entered: " + preparationTimeInMinutes);
+        }
+    }
+
+    public static List<Dish> getAllDishesFromCookBook() {
+        return cookBook;
     }
 
     @Override
