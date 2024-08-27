@@ -15,10 +15,11 @@ public class Order {
         this.tableNumber = tableNumber;
         this.orderedDishId = orderedDishId;
         this.quantityOrdered = quantityOrdered;
-        this.orderedTime = orderedTime;
+        this.orderedTime = orderedTime;                   //  UDELEJ DRUHY KONSTRUKTOR KDE NEMUSIM VOLAT CAS DOKONCENI!!!!!!!
         this.fulfilmentTime = fulfilmentTime;
         this.isPaid = isPaid;
     }
+    
 
     public int getTableNumber() {
         return tableNumber;
@@ -76,5 +77,13 @@ public class Order {
             message = "The order has not been fulfilled yet";
         }
         return message;
+    }
+
+    public void setOrderedTimeToNow() {
+        this.orderedTime = LocalDateTime.now();
+    }
+
+    public void setFulfilmentTimeToNow() {
+        this.fulfilmentTime = LocalDateTime.now();
     }
 }
