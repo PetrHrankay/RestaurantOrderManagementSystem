@@ -5,26 +5,28 @@ import java.time.LocalDateTime;
 public class Order {
 
     private int tableNumber;
-    private Dish orderedDishId;
+    private int dishId;
     private int quantityOrdered;
     private LocalDateTime orderedTime;
     private LocalDateTime fulfilmentTime;
     private boolean isPaid;
 
-    public Order(int tableNumber, Dish orderedDishId, int quantityOrdered, LocalDateTime orderedTime, LocalDateTime fulfilmentTime, boolean isPaid) {
+    public Order(int tableNumber, int dishId, int quantityOrdered, LocalDateTime orderedTime, LocalDateTime fulfilmentTime, boolean isPaid) {
         this.tableNumber = tableNumber;
-        this.orderedDishId = orderedDishId;
+        this.dishId = dishId;
         this.quantityOrdered = quantityOrdered;
-        this.orderedTime = orderedTime;                   //  UDELEJ DRUHY KONSTRUKTOR KDE NEMUSIM VOLAT CAS DOKONCENI!!!!!!!
+        this.orderedTime = orderedTime;
         this.fulfilmentTime = fulfilmentTime;
         this.isPaid = isPaid;
+        findDishById(dishId);
     }
-    public Order(int tableNumber, Dish orderedDishId, int quantityOrdered, boolean isPaid) {
+    public Order(int tableNumber, int dishId, int quantityOrdered, boolean isPaid) {
         this.tableNumber = tableNumber;
-        this.orderedDishId = orderedDishId;
+        this.dishId = dishId;
         this.quantityOrdered = quantityOrdered;
         this.isPaid = isPaid;
         this.orderedTime = LocalDateTime.now();
+        findDishById(dishId);
     }
 
     public int getTableNumber() {
@@ -35,12 +37,12 @@ public class Order {
         this.tableNumber = tableNumber;
     }
 
-    public Dish getOrderedDishId() {
-        return orderedDishId;
+    public int getDishId() {
+        return dishId;
     }
 
-    public void setOrderedDishId(Dish orderedDishId) {
-        this.orderedDishId = orderedDishId;
+    public void setDishId(int dishId) {
+        this.dishId = dishId;
     }
 
     public int getQuantityOrdered() {
@@ -75,7 +77,11 @@ public class Order {
         isPaid = paid;
     }
 
-    public String isFulfilled() {
+    public Dish getOrderedDish() {
+        return findDishById(dishId);
+    }
+
+    public String isFulfilledOrNot() {
         String message;
         if (fulfilmentTime != null) {
             message = "The order was fulfilled at: " + fulfilmentTime;
@@ -91,5 +97,26 @@ public class Order {
 
     public void setFulfilmentTimeToNow() {
         this.fulfilmentTime = LocalDateTime.now();
+    }
+
+    private Dish findDishById(int dishId) {
+        for (Dish dish : Dish.getAllDishesFromCookBook()) {
+            if (dish.getDishId() == dishId) {
+                return dish;
+            }
+        }
+        throw new IllegalArgumentException("Dish with ID " + dishId + " not found.");
+    }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "tableNumber=" + tableNumber +
+                ", orderedDishId=" + dishId +
+                ", quantityOrdered=" + quantityOrdered +
+                ", orderedTime=" + orderedTime +
+                ", fulfilmentTime=" + fulfilmentTime +
+                ", isPaid=" + isPaid +
+                '}';
     }
 }
