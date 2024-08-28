@@ -75,6 +75,17 @@ public class Dish extends FileManager {
         return cookBook;
     }
 
+    public static void removeDishFromCookBookById(int selectedId) throws FileManagerException {
+        for (Dish item : Dish.cookBook) {
+            if (item.getDishId() == selectedId) {
+                cookBook.remove(item);
+                fileManager.saveDishToFile(Settings.getCookBookFileName());
+                return;
+            }
+        }
+        throw new IllegalArgumentException("Dish with ID " + selectedId + " not found.");
+    }
+
     private void saveCookBookToFile() {
         try {
             fileManager.saveDishToFile(Settings.getCookBookFileName());
