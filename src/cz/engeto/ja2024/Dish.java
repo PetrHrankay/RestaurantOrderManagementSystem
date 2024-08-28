@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Dish {
+public class Dish extends FileManager {
 
     private int dishId;
     private String title;
@@ -12,7 +12,9 @@ public class Dish {
     private int preparationTimeInMinutes;
     private String image;
 
-    private static List<Dish> cookBook = new ArrayList<>();
+    private static List<Dish> cookBook = new ArrayList<>();    // Zkus opravit na private static List<Dish> cookBook = Collections.synchronizedList(new ArrayList<>());
+                                                               // Tohle řešení už zajistí, že všechny operace se seznamem budou synchronizované.
+    private static FileManager fileManager = new FileManager();
 
     public Dish(int dishId, String title, BigDecimal price, int preparationTimeInMinutes, String image) throws DishException {
         this.dishId = dishId;
@@ -21,6 +23,7 @@ public class Dish {
         setPreparationTimeInMinutes(preparationTimeInMinutes);
         this.image = image;
         cookBook.add(this);
+        saveCookBookToFile();
     }
 
     public int getDishId() {
@@ -49,6 +52,15 @@ public class Dish {
 
     public int getPreparationTimeInMinutes() {
         return preparationTimeInMinutes;
+        
+    }
+    public void setPreparationTimeInMinutes(int preparationTimeInMinutes) throws DishException {
+        if (preparationTimeInMinutes >= 0) {
+            this.preparationTimeInMinutes = preparationTimeInMinutes;
+        } else {
+            throw new DishException(
+                    "The entered preparation time must be greater than 0. You entered: " + preparationTimeInMinutes);
+        }
     }
 
     public String getImage() {
@@ -59,17 +71,16 @@ public class Dish {
         this.image = image;
     }
 
-    public void setPreparationTimeInMinutes(int preparationTimeInMinutes) throws DishException {
-        if (preparationTimeInMinutes >= 0) {
-            this.preparationTimeInMinutes = preparationTimeInMinutes;
-        } else {
-            throw new DishException(
-                    "The entered preparation time must be greater than 0. You entered: " + preparationTimeInMinutes);
-        }
-    }
-
     public static List<Dish> getAllDishesFromCookBook() {
         return cookBook;
+    }
+
+    private void saveCookBookToFile() {
+        try {
+            fileManager.saveDishToFile(Settings.getCookBookFileName());
+        } catch (FileManagerException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
