@@ -100,8 +100,9 @@ public class Order {
         this.orderedTime = LocalDateTime.now();
     }
 
-    public void setFulfilmentTimeToNow() {
+    public void setFulfilmentTimeToNow() throws FileManagerException {
         this.fulfilmentTime = LocalDateTime.now();
+        fileManager.saveOrderToFile(Settings.getOrdersFilename());
     }
 
     private Dish findDishById(int dishId) {
