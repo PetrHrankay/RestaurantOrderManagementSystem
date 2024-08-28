@@ -1,6 +1,8 @@
 package cz.engeto.ja2024;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Order {
 
@@ -11,6 +13,9 @@ public class Order {
     private LocalDateTime fulfilmentTime;
     private boolean isPaid;
 
+    private static List<Order> receivedOrdersList = new ArrayList<>();
+    private static FileManager fileManager = new FileManager();
+
     public Order(int tableNumber, int dishId, int quantityOrdered, LocalDateTime orderedTime, LocalDateTime fulfilmentTime, boolean isPaid) {
         this.tableNumber = tableNumber;
         this.dishId = dishId;
@@ -19,6 +24,8 @@ public class Order {
         this.fulfilmentTime = fulfilmentTime;
         this.isPaid = isPaid;
         findDishById(dishId);
+        receivedOrdersList.add(this);
+        saveReceivedOrdersToFile();
     }
     public Order(int tableNumber, int dishId, int quantityOrdered, boolean isPaid) {
         this.tableNumber = tableNumber;
@@ -27,6 +34,8 @@ public class Order {
         this.isPaid = isPaid;
         this.orderedTime = LocalDateTime.now();
         findDishById(dishId);
+        receivedOrdersList.add(this);
+        saveReceivedOrdersToFile();
     }
 
     public int getTableNumber() {
@@ -77,10 +86,6 @@ public class Order {
         isPaid = paid;
     }
 
-    public Dish getOrderedDish() {
-        return findDishById(dishId);
-    }
-
     public String isFulfilledOrNot() {
         String message;
         if (fulfilmentTime != null) {
@@ -107,6 +112,24 @@ public class Order {
         }
         throw new IllegalArgumentException("Dish with ID " + dishId + " not found.");
     }
+
+    public Dish getOrderedDish() {
+        return findDishById(dishId);
+    }
+
+    public static List<Order> getAllOrdersFromReceivedOrdersList() {
+        return receivedOrdersList;
+    }
+
+    private void saveReceivedOrdersToFile() {
+        try {
+            fileManager.saveOrderToFile(Settings.getOrdersFilename());
+        } catch (FileManagerException e) {
+            throw new RuntimeException(e);  // Ty vyjimky si jeste dores
+
+        }
+    }
+
 
     @Override
     public String toString() {
