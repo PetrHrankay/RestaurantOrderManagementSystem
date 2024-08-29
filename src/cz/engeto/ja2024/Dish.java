@@ -30,24 +30,27 @@ public class Dish extends FileManager {
         return dishId;
     }
 
-    public void setDishId(int dishId) {
+    public void setDishId(int dishId) throws FileManagerException {
         this.dishId = dishId;
+        fileManager.saveDishToFile(Settings.getCookBookFileName());
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(String title) throws FileManagerException {
         this.title = title;
+        fileManager.saveDishToFile(Settings.getCookBookFileName());
     }
 
     public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(BigDecimal price) {
+    public void setPrice(BigDecimal price) throws FileManagerException {
         this.price = price;
+        fileManager.saveDishToFile(Settings.getCookBookFileName());
     }
 
     public int getPreparationTimeInMinutes() {
@@ -67,8 +70,9 @@ public class Dish extends FileManager {
         return image;
     }
 
-    public void setImage(String image) {
+    public void setImage(String image) throws FileManagerException {
         this.image = image;
+        fileManager.saveDishToFile(Settings.getCookBookFileName());
     }
 
     public static List<Dish> getAllDishesFromCookBook() {
