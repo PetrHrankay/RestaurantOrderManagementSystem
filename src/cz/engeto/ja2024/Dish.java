@@ -75,6 +75,16 @@ public class Dish extends FileManager {
         return cookBook;
     }
 
+    public static List<String> getAllDishTitlesFromCookBook() {
+        List<String> dishTitles = new ArrayList<>();
+        for (Dish dish : cookBook) {
+            dishTitles.add(dish.getTitle());
+        }
+        return dishTitles;
+    }
+
+
+
     public static void removeDishFromCookBookById(int selectedId) throws FileManagerException {
         for (Dish item : Dish.cookBook) {
             if (item.getDishId() == selectedId) {
