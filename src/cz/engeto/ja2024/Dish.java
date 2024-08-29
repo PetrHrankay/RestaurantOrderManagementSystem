@@ -24,6 +24,11 @@ public class Dish extends FileManager {
         this.image = image;
         cookBook.add(this);
         saveCookBookToFile();
+        if (image == null || image.isEmpty()) {
+            this.image = "Blank";
+        } else {
+            this.image = image;
+        }
     }
 
     public int getDishId() {
