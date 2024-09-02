@@ -2,6 +2,7 @@ package cz.engeto.ja2024;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Dish extends FileManager {
@@ -12,9 +13,10 @@ public class Dish extends FileManager {
     private int preparationTimeInMinutes;
     private String image;
 
-    private static List<Dish> cookBook = new ArrayList<>();    // Zkus opravit na private static List<Dish> cookBook = Collections.synchronizedList(new ArrayList<>());
-                                                               // Tohle řešení už zajistí, že všechny operace se seznamem budou synchronizované.
+    private static List<Dish> cookBook = Collections.synchronizedList(new ArrayList<>());//
+
     private static FileManager fileManager = new FileManager();
+
 
     public Dish(int dishId, String title, BigDecimal price, int preparationTimeInMinutes, String image) throws DishException {
         this.dishId = dishId;
@@ -23,7 +25,6 @@ public class Dish extends FileManager {
         setPreparationTimeInMinutes(preparationTimeInMinutes);
         this.image = image;
         cookBook.add(this);
-        saveCookBookToFile();
         if (image == null || image.isEmpty()) {
             this.image = "Blank";
         } else {
@@ -31,36 +32,37 @@ public class Dish extends FileManager {
         }
     }
 
+    public Dish(int dishId, String title, BigDecimal price, int preparationTimeInMinutes) throws DishException {
+        this(dishId, title, price, preparationTimeInMinutes, "Blank");
+    }
+
+
     public int getDishId() {
         return dishId;
     }
 
-    public void setDishId(int dishId) throws FileManagerException {
+    public void setDishId(int dishId) {
         this.dishId = dishId;
-        fileManager.saveDishToFile(Settings.getCookBookFileName());
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) throws FileManagerException {
+    public void setTitle(String title) {
         this.title = title;
-        fileManager.saveDishToFile(Settings.getCookBookFileName());
     }
 
     public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(BigDecimal price) throws FileManagerException {
+    public void setPrice(BigDecimal price) {
         this.price = price;
-        fileManager.saveDishToFile(Settings.getCookBookFileName());
     }
 
     public int getPreparationTimeInMinutes() {
         return preparationTimeInMinutes;
-        
     }
     public void setPreparationTimeInMinutes(int preparationTimeInMinutes) throws DishException {
         if (preparationTimeInMinutes >= 0) {
@@ -75,9 +77,8 @@ public class Dish extends FileManager {
         return image;
     }
 
-    public void setImage(String image) throws FileManagerException {
+    public void setImage(String image) {
         this.image = image;
-        fileManager.saveDishToFile(Settings.getCookBookFileName());
     }
 
     public static List<Dish> getAllDishesFromCookBook() {
@@ -94,18 +95,17 @@ public class Dish extends FileManager {
 
 
 
-    public static void removeDishFromCookBookById(int selectedId) throws FileManagerException {
+    public static void removeDishFromCookBookById(int selectedId){
         for (Dish item : Dish.cookBook) {
             if (item.getDishId() == selectedId) {
                 cookBook.remove(item);
-                fileManager.saveDishToFile(Settings.getCookBookFileName());
                 return;
             }
         }
         throw new IllegalArgumentException("Dish with ID " + selectedId + " not found.");
     }
 
-    private void saveCookBookToFile() {
+    public static void saveCookBookToFile() {
         try {
             fileManager.saveDishToFile(Settings.getCookBookFileName());
         } catch (FileManagerException e) {
@@ -116,7 +116,7 @@ public class Dish extends FileManager {
     @Override
     public String toString() {
         return "Dish{" +
-                "dishId=" + dishId +
+                "dishId:" + dishId +
                 ", title='" + title + '\'' +
                 ", price=" + price +
                 ", preparationTimeInMinutes=" + preparationTimeInMinutes +
