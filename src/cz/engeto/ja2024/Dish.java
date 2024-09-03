@@ -93,12 +93,26 @@ public class Dish extends FileManager {
         return dishTitles;
     }
 
+    public static void removeDishFromCookBook(Dish dish) throws FileManagerException {
+        if (cookBook.contains(dish)) {
+            System.out.println("Selected dish: " + dish.getTitle() + " was removed from cookbook");
+            cookBook.remove(dish);
+//            fileManager.saveDishToFile(Settings.getCookBookFileName());
+            return;
+
+        }
+        throw new IllegalArgumentException("Selected dish: " + dish.getTitle() + " not found");
+
+    }
 
 
-    public static void removeDishFromCookBookById(int selectedId){
+
+    public static void removeDishFromCookBookByItsId(int selectedId) throws FileManagerException {
         for (Dish item : Dish.cookBook) {
             if (item.getDishId() == selectedId) {
+                System.out.println("You have selected ID: " + selectedId + " This corresponds to dish: " + item.getTitle() + " .Selected dish was removed from cookbook");
                 cookBook.remove(item);
+                fileManager.saveDishToFile(Settings.getCookBookFileName());
                 return;
             }
         }
