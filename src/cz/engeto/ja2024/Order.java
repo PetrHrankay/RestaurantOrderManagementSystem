@@ -1,5 +1,6 @@
 package cz.engeto.ja2024;
 
+import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ public class Order {
         this.isPaid = isPaid;
         findDishById(dishId);
         receivedOrdersList.add(this);
-        saveReceivedOrdersToFile();
+//        saveReceivedOrdersToFile();
     }
     public Order(int tableNumber, int dishId, int quantityOrdered, boolean isPaid) {
         this.tableNumber = tableNumber;
@@ -130,6 +131,15 @@ public class Order {
 
         }
     }
+
+    public static void displayLoadedOrders() throws FileManagerException, FileNotFoundException {
+        List<Order> orders = fileManager.loadedOrderFromFile(Settings.getOrdersFilename());
+        for (Order item : orders) {
+            System.out.println(item);
+        }
+    }
+
+
 
 
     @Override
