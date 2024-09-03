@@ -2,10 +2,8 @@ package cz.engeto.ja2024;
 
 import java.io.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
+import java.time.LocalDateTime;
+import java.util.*;
 
 
 public class FileManager {
@@ -56,7 +54,7 @@ public class FileManager {
     }
 
     public List<Dish> loadDishFromFile(String fileName) throws FileManagerException {
-        List<Dish> dishes = new ArrayList<>();
+        List<Dish> loadedDishes = new ArrayList<>();
         int lineCounter = 0;
 
         try (Scanner scanner = new Scanner(new BufferedReader(new FileReader(fileName)))) {
@@ -75,8 +73,8 @@ public class FileManager {
                 int preparationTimeInMinutes = Integer.parseInt(parts[3]);
                 String image = parts[4];
 
-                Dish loadedDish = new Dish(dishId, title, price, preparationTimeInMinutes, image);
-                dishes.add(loadedDish);
+                Dish dish = new Dish(dishId, title, price, preparationTimeInMinutes, image);
+                loadedDishes.add(dish);
             }
         } catch (FileNotFoundException e) {
             throw new FileManagerException("File " + fileName + " not found!\n" + e.getLocalizedMessage());
@@ -85,14 +83,39 @@ public class FileManager {
         } catch (DishException e) {
             throw new FileManagerException("Error processing line " + lineCounter + ": " + e.getLocalizedMessage());
         }
-
-        return dishes;
+        return loadedDishes;
     }
 
+    public List<Order> loadedOrderFromFile(String fileName) throws FileNotFoundException {
+        List<Order> loadedOrders = new ArrayList<>();
+        int lineCounter = 0;
+
+        try (Scanner scanner = new Scanner(new BufferedReader(new FileReader(fileName)))) {
+            while (scanner.hasNextLine()) {
+                lineCounter++;
+                String line = scanner.nextLine().trim();
+                String[] parts = line.split(";\\s*");
+
+                if (parts.length != 7) {
+                    throw new OrderException("Incorrect number of items on line number: " + lineCounter + ": " + line + "!");
+                }
+
+                int tableNumber = Integer.parseInt(parts[0].split(":")[1].trim());
+                int dishId = Integer.parseInt(parts[1].split(":")[1].trim());
+                int quantityOrdered = Integer.parseInt(parts[2].split(":")[1].trim());
+                LocalDateTime orderedTime = LocalDateTime.parse(parts[3]);
+                LocalDateTime fulfilmentTime = "null".equals(parts[4]) ? null : LocalDateTime.parse(parts[4]);
+                boolean isPaid = Boolean.parseBoolean(parts[5]);
+
+                Order order = new Order(tableNumber, dishId, quantityOrdered, orderedTime, fulfilmentTime, isPaid);
+                loadedOrders.add(order);
 
 
-    public List<Dish> getDishes() {
-        return dishes;
+            }
+        } catch (OrderException e) {
+            throw new RuntimeException(e);
+        }
+        return loadedOrders;
     }
 }
 
