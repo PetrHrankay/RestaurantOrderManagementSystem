@@ -18,7 +18,7 @@ public class Dish extends FileManager {
     private static FileManager fileManager = new FileManager();
 
 
-    public Dish(int dishId, String title, BigDecimal price, int preparationTimeInMinutes, String image) throws DishException {
+    public Dish(int dishId, String title, BigDecimal price, int preparationTimeInMinutes, String image) throws DishException, FileManagerException {
         this.dishId = dishId;
         this.title = title;
         this.price = price;
@@ -32,7 +32,7 @@ public class Dish extends FileManager {
         }
     }
 
-    public Dish(int dishId, String title, BigDecimal price, int preparationTimeInMinutes) throws DishException {
+    public Dish(int dishId, String title, BigDecimal price, int preparationTimeInMinutes) throws DishException, FileManagerException {
         this(dishId, title, price, preparationTimeInMinutes, "Blank");
     }
 
@@ -126,6 +126,14 @@ public class Dish extends FileManager {
             e.printStackTrace();
         }
     }
+
+    public static void displayLoadedDishes() throws FileManagerException {
+        List<Dish> dishes = fileManager.loadDishFromFile(Settings.getCookBookFileName());
+        for (Dish item : dishes) {
+            System.out.println(item);
+        }
+    }
+
 
     @Override
     public String toString() {
