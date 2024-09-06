@@ -1,14 +1,20 @@
 package cz.engeto.ja2024;
 
-import java.io.FileNotFoundException;
+import cz.engeto.ja2024.Dish;
+import cz.engeto.ja2024.FileManager;
+
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Order {
 
+    private static int orderCounter = 0;
+
+    private int orderId;
     private int tableNumber;
-    private int dishId;
+    private Dish dish;
     private int quantityOrdered;
     private LocalDateTime orderedTime;
     private LocalDateTime fulfilmentTime;
@@ -18,25 +24,36 @@ public class Order {
     private static FileManager fileManager = new FileManager();
 
     public Order(int tableNumber, int dishId, int quantityOrdered, LocalDateTime orderedTime, LocalDateTime fulfilmentTime, boolean isPaid) {
-        this.tableNumber = tableNumber;
-        this.dishId = dishId;
-        this.quantityOrdered = quantityOrdered;
+        this(tableNumber, dishId, quantityOrdered, isPaid);
         this.orderedTime = orderedTime;
         this.fulfilmentTime = fulfilmentTime;
-        this.isPaid = isPaid;
-        findDishById(dishId);
-        receivedOrdersList.add(this);
-//        saveReceivedOrdersToFile();
     }
+
     public Order(int tableNumber, int dishId, int quantityOrdered, boolean isPaid) {
+        this.orderId = ++orderCounter;
         this.tableNumber = tableNumber;
-        this.dishId = dishId;
+        this.dish = findDishById(dishId);
         this.quantityOrdered = quantityOrdered;
         this.isPaid = isPaid;
         this.orderedTime = LocalDateTime.now();
-        findDishById(dishId);
+        addToReceivedOrdersList();
+    }
+
+    private void addToReceivedOrdersList() {
         receivedOrdersList.add(this);
-        saveReceivedOrdersToFile();
+    }
+
+    private Dish findDishById(int dishId) {
+        for (Dish searchedDish : Dish.getAllDishesFromCookBook()) {
+            if (searchedDish.getDishId() == dishId) {
+                return searchedDish;
+            }
+        }
+        throw new IllegalArgumentException("Dish with ID " + dishId + " not found.");
+    }
+
+    public int getOrderId() {
+        return orderId;
     }
 
     public int getTableNumber() {
@@ -47,12 +64,12 @@ public class Order {
         this.tableNumber = tableNumber;
     }
 
-    public int getDishId() {
-        return dishId;
+    public Dish getDish() {
+        return dish;
     }
 
-    public void setDishId(int dishId) {
-        this.dishId = dishId;
+    public void setDish(Dish dish) {
+        this.dish = dish;
     }
 
     public int getQuantityOrdered() {
@@ -88,13 +105,11 @@ public class Order {
     }
 
     public String isFulfilledOrNot() {
-        String message;
         if (fulfilmentTime != null) {
-            message = "The order was fulfilled at: " + fulfilmentTime;
+            return "The order was fulfilled :)";
         } else {
-            message = "The order has not been fulfilled yet";
+            return "The order has not been fulfilled yet :(";
         }
-        return message;
     }
 
     public void setOrderedTimeToNow() {
@@ -106,47 +121,25 @@ public class Order {
         fileManager.saveOrderToFile(Settings.getOrdersFilename());
     }
 
-    private Dish findDishById(int dishId) {
-        for (Dish dish : Dish.getAllDishesFromCookBook()) {
-            if (dish.getDishId() == dishId) {
-                return dish;
-            }
-        }
-        throw new IllegalArgumentException("Dish with ID " + dishId + " not found.");
-    }
-
-    public Dish getOrderedDish() {
-        return findDishById(dishId);
-    }
-
     public static List<Order> getAllOrdersFromReceivedOrdersList() {
         return receivedOrdersList;
     }
 
-    private void saveReceivedOrdersToFile() {
+    public static void saveReceivedOrdersToFile() {
         try {
             fileManager.saveOrderToFile(Settings.getOrdersFilename());
         } catch (FileManagerException e) {
-            throw new RuntimeException(e);  // Ty vyjimky si jeste dores
-
+            System.err.println("Error saving orders to file: " + e.getMessage());
+            e.printStackTrace();
         }
     }
-
-    public static void displayLoadedOrders() throws FileManagerException, FileNotFoundException {
-        List<Order> orders = fileManager.loadedOrderFromFile(Settings.getOrdersFilename());
-        for (Order item : orders) {
-            System.out.println(item);
-        }
-    }
-
-
-
 
     @Override
     public String toString() {
         return "Order{" +
-                "tableNumber=" + tableNumber +
-                ", orderedDishId=" + dishId +
+                "orderId=" + orderId +  // Přidání orderId do toString
+                ", tableNumber=" + tableNumber +
+                ", dish=" + dish +
                 ", quantityOrdered=" + quantityOrdered +
                 ", orderedTime=" + orderedTime +
                 ", fulfilmentTime=" + fulfilmentTime +
