@@ -47,6 +47,26 @@ public class RestaurantManager {
         System.out.println(result);
         return result;
         }
+
+    public static StringBuilder getDishesOrderedToday() {
+        StringBuilder todayDishes = new StringBuilder("Dishes ordered today: ");
+        List<Order> orders = Order.getAllOrdersFromReceivedOrdersList();
+        boolean anyDishAdded = false;
+
+        for (Order order : orders) {
+            if (order.getOrderedTime().toLocalDate().equals(LocalDate.now())) {
+                String dishTitle = order.getDish().getTitle();
+
+                if (!todayDishes.toString().contains(dishTitle)) {
+                    if (anyDishAdded) {
+                        todayDishes.append(", ");
+                    }
+                    todayDishes.append(dishTitle);
+                    anyDishAdded = true;
+                }
+            }
+        }return todayDishes;
+    }
 }
 
 
