@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Dish extends FileManager {
+public class Dish {
 
     private int dishId;
     private String title;
@@ -17,13 +17,17 @@ public class Dish extends FileManager {
 
     private static FileManager fileManager = new FileManager();
 
-
     public Dish(int dishId, String title, BigDecimal price, int preparationTimeInMinutes, String image) throws DishException, FileManagerException {
         this.dishId = dishId;
         this.title = title;
         this.price = price;
         setPreparationTimeInMinutes(preparationTimeInMinutes);
         this.image = image;
+//        for (Dish dish : cookBook) {
+//            if (dish.getDishId() == this.dishId) {
+//                throw new DishException("Dish with ID " + this.dishId + " already exists.");
+//            }
+//        }
         cookBook.add(this);
         if (image == null || image.isEmpty()) {
             this.image = "Blank";
@@ -35,7 +39,6 @@ public class Dish extends FileManager {
     public Dish(int dishId, String title, BigDecimal price, int preparationTimeInMinutes) throws DishException, FileManagerException {
         this(dishId, title, price, preparationTimeInMinutes, "Blank");
     }
-
 
     public int getDishId() {
         return dishId;
@@ -95,9 +98,9 @@ public class Dish extends FileManager {
 
     public static void removeDishFromCookBook(Dish dish) throws FileManagerException {
         if (cookBook.contains(dish)) {
-            System.out.println("Selected dish: " + dish.getTitle() + " was removed from cookbook");
+            System.out.println("Selected dish: " + dish.getTitle() + " was removed from cookbook.");
             cookBook.remove(dish);
-//            fileManager.saveDishToFile(Settings.getCookBookFileName());
+            fileManager.saveCookBookToFile(Settings.getCookBookFileName());
             return;
 
         }
@@ -105,33 +108,16 @@ public class Dish extends FileManager {
 
     }
 
-
-
     public static void removeDishFromCookBookByItsId(int selectedId) throws FileManagerException {
         for (Dish item : Dish.cookBook) {
             if (item.getDishId() == selectedId) {
-                System.out.println("You have selected ID: " + selectedId + " This corresponds to dish: " + item.getTitle() + " .Selected dish was removed from cookbook");
+                System.out.println("You have selected ID: " + selectedId + " This corresponds to dish: " + item.getTitle() + " .Selected dish was removed from cookbook.");
                 cookBook.remove(item);
-                fileManager.saveDishToFile(Settings.getCookBookFileName());
+                fileManager.saveCookBookToFile(Settings.getCookBookFileName());
                 return;
             }
         }
         throw new IllegalArgumentException("Dish with ID " + selectedId + " not found.");
-    }
-
-    public static void saveCookBookToFile() {
-        try {
-            fileManager.saveDishToFile(Settings.getCookBookFileName());
-        } catch (FileManagerException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void displayLoadedDishes() throws FileManagerException {
-        List<Dish> dishes = fileManager.loadDishFromFile(Settings.getCookBookFileName());
-        for (Dish item : dishes) {
-            System.out.println(item);
-        }
     }
 
 
