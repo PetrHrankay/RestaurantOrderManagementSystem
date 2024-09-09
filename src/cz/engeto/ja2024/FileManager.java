@@ -1,7 +1,6 @@
 package cz.engeto.ja2024;
 
 import java.io.*;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -9,7 +8,7 @@ public class FileManager {
 
     private List<Dish> dishes = Collections.synchronizedList(new ArrayList<>());
 
-    public synchronized void saveDishToFile(String fileName) throws FileManagerException {
+    public static synchronized void saveCookBookToFile(String fileName) throws FileManagerException {
         String delimiter = Settings.getDelimiter();
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(fileName)))) {
             for (Dish item : Dish.getAllDishesFromCookBook()) {
@@ -29,8 +28,9 @@ public class FileManager {
         }
     }
 
-    public void saveOrderToFile(String fileName) throws FileManagerException {
+    public static synchronized void saveOrdersToFile(String fileName) throws FileManagerException {
         String delimiter = Settings.getDelimiter();
+
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(fileName)))) {
             for (Order item : Order.getAllOrdersFromReceivedOrdersList()) {
                 int dishId = item.getDish().getDishId();
@@ -55,7 +55,7 @@ public class FileManager {
     }
 
 
-    private boolean isCookBookFileEmpty(String fileName) throws FileManagerException {
+    private static boolean isCookBookFileEmpty(String fileName) throws FileManagerException {
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             return reader.readLine() == null;
         } catch (FileNotFoundException e) {
@@ -65,47 +65,46 @@ public class FileManager {
         }
     }
 
-    public List<Dish> loadDishFromFile(String fileName) throws FileManagerException {
-        List<Dish> loadedDishes = new ArrayList<>();
+    public static void LoadAndPrintDishFileContent(String fileName) throws FileManagerException {
         int lineCounter = 0;
 
         if (isCookBookFileEmpty(fileName)) {
             System.out.println("No dishes added yet.");
-            return loadedDishes;
+            return;
         }
 
         try (Scanner scanner = new Scanner(new BufferedReader(new FileReader(fileName)))) {
             while (scanner.hasNextLine()) {
                 lineCounter++;
-                String[] parts = scanner.nextLine().trim().split(";\\s*");
+                String line = scanner.nextLine().trim();
+                String[] parts = line.split(";\\s*");
+
 
                 if (parts.length != 5) {
-                    throw new DishException("Incorrect number of items on line " + lineCounter + ": " + Arrays.toString(parts));
+                    throw new FileManagerException("Incorrect number of items on line " + lineCounter + ": " + Arrays.toString(parts));
                 }
 
-                loadedDishes.add(new Dish(
-                        Integer.parseInt(parts[0]),
-                        parts[1],
-                        new BigDecimal(parts[2]),
-                        Integer.parseInt(parts[3]),
-                        parts[4]
-                ));
+                System.out.println("Dish ID: " + parts[0] +
+                        ", Title: " + parts[1] +
+                        ", Price: " + parts[2] +
+                        ", Preparation Time: " + parts[3] +
+                        ", Image: " + parts[4]);
             }
         } catch (FileNotFoundException e) {
             throw new FileManagerException("File " + fileName + " not found!");
-        } catch (DishException e) {
-            throw new FileManagerException("Error on line " + lineCounter + ": " + e.getMessage());
+        } catch (IOException e) {
+            throw new FileManagerException("Error while reading file " + fileName + ": " + e.getMessage());
         }
-        return loadedDishes;
     }
 
-    public boolean isOrdersFileEmpty(String fileName) throws IOException {
+
+    public static boolean isOrdersFileEmpty(String fileName) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             return reader.readLine() == null;
         }
     }
 
-    public List<Order> loadOrdersFromFile(String fileName) throws IOException, FileManagerException {
+    public static List<Order> loadOrdersFromFile(String fileName) throws IOException, FileManagerException {
         List<Order> loadedOrders = new ArrayList<>();
         int lineCounter = 0;
 
