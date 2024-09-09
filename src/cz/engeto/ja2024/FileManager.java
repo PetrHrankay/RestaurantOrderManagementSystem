@@ -6,8 +6,6 @@ import java.util.*;
 
 public class FileManager {
 
-    private List<Dish> dishes = Collections.synchronizedList(new ArrayList<>());
-
     public static synchronized void saveCookBookToFile(String fileName) throws FileManagerException {
         String delimiter = Settings.getDelimiter();
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(fileName)))) {
@@ -72,18 +70,17 @@ public class FileManager {
             System.out.println("No dishes added yet.");
             return;
         }
-
         try (Scanner scanner = new Scanner(new BufferedReader(new FileReader(fileName)))) {
             while (scanner.hasNextLine()) {
                 lineCounter++;
                 String line = scanner.nextLine().trim();
+                if (line.isEmpty()) {
+                    continue;
+                }
                 String[] parts = line.split(";\\s*");
-
-
                 if (parts.length != 5) {
                     throw new FileManagerException("Incorrect number of items on line " + lineCounter + ": " + Arrays.toString(parts));
                 }
-
                 System.out.println("Dish ID: " + parts[0] +
                         ", Title: " + parts[1] +
                         ", Price: " + parts[2] +
@@ -97,47 +94,54 @@ public class FileManager {
         }
     }
 
-
-    public static boolean isOrdersFileEmpty(String fileName) throws IOException {
+    public static boolean isOrderFileEmpty(String fileName) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             return reader.readLine() == null;
         }
     }
 
-    public static List<Order> loadOrdersFromFile(String fileName) throws IOException, FileManagerException {
-        List<Order> loadedOrders = new ArrayList<>();
+    public static void LoadAndPrintOrderFileContent(String fileName) throws FileManagerException, IOException {
         int lineCounter = 0;
-
-        if (isOrdersFileEmpty(fileName)) {
+        if (isOrderFileEmpty(fileName)) {
             System.out.println("No orders added yet.");
-            return loadedOrders;
+            return;
         }
-
-        try (Scanner scanner = new Scanner(new BufferedReader(new FileReader(fileName)))) {
-            while (scanner.hasNextLine()) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
                 lineCounter++;
-                String line = scanner.nextLine().trim();
-                String[] parts = line.split(";\\s*");
+                String[] parts = line.trim().split(";\\s*");
 
                 if (parts.length != 7) {
-                    throw new OrderException("Incorrect number of items on line number: " + lineCounter + ": " + line + "!");
+                    throw new FileManagerException(
+                            "Invalid format on line " + lineCounter + ": " + Arrays.toString(parts) +
+                                    ". Expected 7 items, but got " + parts.length
+                    );
                 }
-
                 int tableNumber = Integer.parseInt(parts[0].split(":")[1].trim());
                 int dishId = Integer.parseInt(parts[1].split(":")[1].trim());
                 int quantityOrdered = Integer.parseInt(parts[2].split(":")[1].trim());
                 LocalDateTime orderedTime = LocalDateTime.parse(parts[3]);
                 LocalDateTime fulfilmentTime = "null".equals(parts[4]) ? null : LocalDateTime.parse(parts[4]);
                 boolean isPaid = Boolean.parseBoolean(parts[5]);
+                boolean isFulfilled = Boolean.parseBoolean(parts[6]);
 
-                Order order = new Order(tableNumber, dishId, quantityOrdered, orderedTime, fulfilmentTime, isPaid);
-                loadedOrders.add(order);
+                System.out.println("Table Number: " + tableNumber);
+                System.out.println("Dish ID: " + dishId);
+                System.out.println("Quantity Ordered: " + quantityOrdered);
+                System.out.println("Ordered Time: " + orderedTime);
+                System.out.println("Fulfilment Time: " + (fulfilmentTime != null ? fulfilmentTime : "Not fulfilled yet"));
+                System.out.println("Is Paid: " + isPaid);
+                System.out.println("Is Fulfilled: " + isFulfilled);
+                System.out.println("------------------------------");
             }
-        } catch (FileNotFoundException | OrderException e) {
-            throw new FileManagerException("File " + fileName + " not found!\n" + e.getLocalizedMessage());
+        } catch (FileNotFoundException e) {
+            throw new FileManagerException("File not found: " + fileName);
+        } catch (IOException e) {
+            throw new FileManagerException("Error reading file: " + fileName);
         }
-        return loadedOrders;
     }
 }
+
 
 
