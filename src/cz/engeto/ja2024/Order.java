@@ -141,7 +141,7 @@ public class Order {
     public String toString() {
         return "orderId: " + orderId +
                 ", tableNumber: " + tableNumber +
-                 ", " + dish.getTitle() +
+                ", " + dish.getTitle() +
                 ", quantityOrdered: " + quantityOrdered +
                 ", orderedTime=" + orderedTime +
                 ", fulfilmentTime=" + fulfilmentTime +
