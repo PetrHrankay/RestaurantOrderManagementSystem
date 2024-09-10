@@ -137,7 +137,6 @@ public class Order {
         System.out.println("Total price for table number " + tableNumber + " is " + totalPrice + " CZK.");
     }
 
-
     @Override
     public String toString() {
         return "orderId: " + orderId +
