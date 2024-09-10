@@ -6,6 +6,10 @@ import java.util.*;
 
 public class FileManager {
 
+    private static void handleException(String fileName, String message, Exception e) throws FileManagerException {
+        throw new FileManagerException(message + " " + fileName + ":\n" + e.getLocalizedMessage());
+    }
+
     public static synchronized void saveCookBookToFile(String fileName) throws FileManagerException {
         String delimiter = Settings.getDelimiter();
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(fileName)))) {
@@ -18,21 +22,17 @@ public class FileManager {
                                 + item.getImage());
             }
         } catch (FileNotFoundException e) {
-            throw new FileManagerException("File " + fileName + " not found!\n"
-                    + e.getLocalizedMessage());
+            handleException(fileName, "File not found!", e);
         } catch (IOException e) {
-            throw new FileManagerException("Output error while writing to the file: " + fileName
-                    + ":\n" + e.getLocalizedMessage());
+            handleException(fileName, "Output error while writing to the file:", e);
         }
     }
 
     public static synchronized void saveOrdersToFile(String fileName) throws FileManagerException {
         String delimiter = Settings.getDelimiter();
-
         try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(fileName)))) {
             for (Order item : Order.getAllOrdersFromReceivedOrdersList()) {
                 int dishId = item.getDish().getDishId();
-
                 writer.println(
                         "Table: " + item.getTableNumber() + delimiter
                                 + "Dish number: " + dishId + delimiter
@@ -43,30 +43,28 @@ public class FileManager {
                                 + item.isFulfilledOrNot());
             }
         } catch (FileNotFoundException e) {
-            throw new FileManagerException("File " + fileName + " not found!\n"
-                    + e.getLocalizedMessage());
+            handleException(fileName, "File not found!", e);
         } catch (IOException e) {
-            throw new FileManagerException("Output error while writing to the file: " + fileName
-                    + ":\n" + e.getLocalizedMessage());
+            handleException(fileName, "Output error while writing to the file:", e);
         }
-
     }
 
-
-    private static boolean isCookBookFileEmpty(String fileName) throws FileManagerException {
+    private static boolean isFileEmpty(String fileName) throws FileManagerException {
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             return reader.readLine() == null;
         } catch (FileNotFoundException e) {
-            throw new FileManagerException("File " + fileName + " not found!\n" + e.getLocalizedMessage());
+            handleException(fileName, "File not found!", e);
+            return true; // unreachable code, handleException will throw exception
         } catch (IOException e) {
-            throw new FileManagerException("Output error while reading the file: " + fileName + ":\n" + e.getLocalizedMessage());
+            handleException(fileName, "Output error while reading the file:", e);
+            return true; // unreachable code, handleException will throw exception
         }
     }
 
     public static void LoadAndPrintDishFileContent(String fileName) throws FileManagerException {
         int lineCounter = 0;
 
-        if (isCookBookFileEmpty(fileName)) {
+        if (isFileEmpty(fileName)) {
             System.out.println("No dishes added yet.");
             return;
         }
@@ -74,9 +72,8 @@ public class FileManager {
             while (scanner.hasNextLine()) {
                 lineCounter++;
                 String line = scanner.nextLine().trim();
-                if (line.isEmpty()) {
-                    continue;
-                }
+                if (line.isEmpty()) continue;
+
                 String[] parts = line.split(";\\s*");
                 if (parts.length != 5) {
                     throw new FileManagerException("Incorrect number of items on line " + lineCounter + ": " + Arrays.toString(parts));
@@ -86,23 +83,19 @@ public class FileManager {
                         ", Price: " + parts[2] +
                         ", Preparation Time: " + parts[3] +
                         ", Image: " + parts[4]);
+                System.out.println("-------------------------------------------");
             }
         } catch (FileNotFoundException e) {
-            throw new FileManagerException("File " + fileName + " not found!");
+            handleException(fileName, "File not found!", e);
         } catch (IOException e) {
-            throw new FileManagerException("Error while reading file " + fileName + ": " + e.getMessage());
-        }
-    }
-
-    public static boolean isOrderFileEmpty(String fileName) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-            return reader.readLine() == null;
+            handleException(fileName, "Error while reading file:", e);
         }
     }
 
     public static void LoadAndPrintOrderFileContent(String fileName) throws FileManagerException, IOException {
         int lineCounter = 0;
-        if (isOrderFileEmpty(fileName)) {
+
+        if (isFileEmpty(fileName)) {
             System.out.println("No orders added yet.");
             return;
         }
@@ -111,7 +104,6 @@ public class FileManager {
             while ((line = reader.readLine()) != null) {
                 lineCounter++;
                 String[] parts = line.trim().split(";\\s*");
-
                 if (parts.length != 7) {
                     throw new FileManagerException(
                             "Invalid format on line " + lineCounter + ": " + Arrays.toString(parts) +
@@ -124,24 +116,21 @@ public class FileManager {
                 LocalDateTime orderedTime = LocalDateTime.parse(parts[3]);
                 LocalDateTime fulfilmentTime = "null".equals(parts[4]) ? null : LocalDateTime.parse(parts[4]);
                 boolean isPaid = Boolean.parseBoolean(parts[5]);
-                boolean isFulfilled = Boolean.parseBoolean(parts[6]);
+                boolean isFulfilled = fulfilmentTime != null && fulfilmentTime.isBefore(LocalDateTime.now());
 
-                System.out.println("Table Number: " + tableNumber);
+                System.out.println("Order for table number: " + tableNumber);
                 System.out.println("Dish ID: " + dishId);
                 System.out.println("Quantity Ordered: " + quantityOrdered);
                 System.out.println("Ordered Time: " + orderedTime);
                 System.out.println("Fulfilment Time: " + (fulfilmentTime != null ? fulfilmentTime : "Not fulfilled yet"));
                 System.out.println("Is Paid: " + isPaid);
-                System.out.println("Is Fulfilled: " + isFulfilled);
-                System.out.println("------------------------------");
+                System.out.println("Is Fulfilled: " + (isFulfilled ? "Yes" : "No"));
+                System.out.println("-------------------------------------------");
             }
         } catch (FileNotFoundException e) {
-            throw new FileManagerException("File not found: " + fileName);
+            handleException(fileName, "File not found!", e);
         } catch (IOException e) {
-            throw new FileManagerException("Error reading file: " + fileName);
+            handleException(fileName, "Error reading file:", e);
         }
     }
 }
-
-
-
