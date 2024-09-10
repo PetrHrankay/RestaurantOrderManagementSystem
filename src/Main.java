@@ -1,5 +1,9 @@
 import cz.engeto.ja2024.*;
 
+// author: Petr Hrankay
+//email: pean.tmc@seznam.cz
+//discord: PETR H.
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
