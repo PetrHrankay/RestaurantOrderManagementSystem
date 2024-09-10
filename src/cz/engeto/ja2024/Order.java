@@ -18,15 +18,15 @@ public class Order {
     private boolean isPaid;
 
     private static List<Order> receivedOrdersList = new ArrayList<>();
-    private static FileManager fileManager = new FileManager();
 
-    public Order(int tableNumber, int dishId, int quantityOrdered, LocalDateTime orderedTime, LocalDateTime fulfilmentTime, boolean isPaid) {
+    public Order(int tableNumber, int dishId, int quantityOrdered, LocalDateTime orderedTime,
+                 LocalDateTime fulfilmentTime, boolean isPaid) throws OrderException {
         this(tableNumber, dishId, quantityOrdered, isPaid);
         this.orderedTime = orderedTime;
         this.fulfilmentTime = fulfilmentTime;
     }
 
-    public Order(int tableNumber, int dishId, int quantityOrdered, boolean isPaid) {
+    public Order(int tableNumber, int dishId, int quantityOrdered, boolean isPaid) throws OrderException {
         this.orderId = ++orderCounter;
         this.tableNumber = tableNumber;
         this.dish = findDishById(dishId);
@@ -34,19 +34,6 @@ public class Order {
         this.isPaid = isPaid;
         this.orderedTime = LocalDateTime.now();
         addToReceivedOrdersList();
-    }
-
-    private void addToReceivedOrdersList() {
-        receivedOrdersList.add(this);
-    }
-
-    private Dish findDishById(int dishId) {
-        for (Dish searchedDish : Dish.getAllDishesFromCookBook()) {
-            if (searchedDish.getDishId() == dishId) {
-                return searchedDish;
-            }
-        }
-        throw new IllegalArgumentException("Dish with ID " + dishId + " not found.");
     }
 
     public int getOrderId() {
@@ -113,9 +100,26 @@ public class Order {
         this.orderedTime = LocalDateTime.now();
     }
 
-    public void setFulfilmentTimeToNow() throws FileManagerException {
-        this.fulfilmentTime = LocalDateTime.now();
-        FileManager.saveOrdersToFile(Settings.getOrdersFilename());
+    public void setFulfilmentTimeToNow() throws OrderException {
+        try {
+            this.fulfilmentTime = LocalDateTime.now();
+            FileManager.saveOrdersToFile(Settings.getOrdersFilename());
+        } catch (FileManagerException e) {
+            throw new OrderException("Failed to save orders to file.", e);
+        }
+    }
+
+    private void addToReceivedOrdersList() {
+        receivedOrdersList.add(this);
+    }
+
+    private Dish findDishById(int dishId)throws OrderException{
+        for (Dish searchedDish : Dish.getAllDishesFromCookBook()) {
+            if (searchedDish.getDishId() == dishId) {
+                return searchedDish;
+            }
+        }
+        throw new OrderException("Dish with ID " + dishId + " not found.");
     }
 
     public static List<Order> getAllOrdersFromReceivedOrdersList() {
@@ -136,14 +140,13 @@ public class Order {
 
     @Override
     public String toString() {
-        return "Orders{" +
-                "orderId=" + orderId +
-                ", tableNumber=" + tableNumber +
-                ", dish=" + dish +
-                ", quantityOrdered=" + quantityOrdered +
+        return "orderId: " + orderId +
+                ", tableNumber: " + tableNumber +
+                 ", " + dish.getTitle() +
+                ", quantityOrdered: " + quantityOrdered +
                 ", orderedTime=" + orderedTime +
                 ", fulfilmentTime=" + fulfilmentTime +
-                ", isPaid=" + isPaid +
+                ", isPaid: " + isPaid +
                 '}';
     }
 }

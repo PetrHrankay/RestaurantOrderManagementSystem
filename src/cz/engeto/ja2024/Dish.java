@@ -13,21 +13,15 @@ public class Dish {
     private int preparationTimeInMinutes;
     private String image;
 
-    private static List<Dish> cookBook = Collections.synchronizedList(new ArrayList<>());//
+    private static List<Dish> cookBook = Collections.synchronizedList(new ArrayList<>());
 
-    private static FileManager fileManager = new FileManager();
-
-    public Dish(int dishId, String title, BigDecimal price, int preparationTimeInMinutes, String image) throws DishException, FileManagerException {
+    public Dish(int dishId, String title, BigDecimal price, int preparationTimeInMinutes,
+                String image) throws DishException {
         this.dishId = dishId;
         this.title = title;
         this.price = price;
         setPreparationTimeInMinutes(preparationTimeInMinutes);
         this.image = image;
-//        for (Dish dish : cookBook) {
-//            if (dish.getDishId() == this.dishId) {
-//                throw new DishException("Dish with ID " + this.dishId + " already exists.");
-//            }
-//        }
         cookBook.add(this);
         if (image == null || image.isEmpty()) {
             this.image = "Blank";
@@ -36,7 +30,7 @@ public class Dish {
         }
     }
 
-    public Dish(int dishId, String title, BigDecimal price, int preparationTimeInMinutes) throws DishException, FileManagerException {
+    public Dish(int dishId, String title, BigDecimal price, int preparationTimeInMinutes) throws DishException {
         this(dishId, title, price, preparationTimeInMinutes, "Blank");
     }
 
@@ -67,6 +61,7 @@ public class Dish {
     public int getPreparationTimeInMinutes() {
         return preparationTimeInMinutes;
     }
+
     public void setPreparationTimeInMinutes(int preparationTimeInMinutes) throws DishException {
         if (preparationTimeInMinutes >= 0) {
             this.preparationTimeInMinutes = preparationTimeInMinutes;
@@ -88,45 +83,34 @@ public class Dish {
         return cookBook;
     }
 
-    public static List<String> getAllDishTitlesFromCookBook() {
-        List<String> dishTitles = new ArrayList<>();
-        for (Dish dish : cookBook) {
-            dishTitles.add(dish.getTitle());
-        }
-        return dishTitles;
-    }
-
     public static void removeDishFromCookBook(Dish dish) throws FileManagerException {
-        if (cookBook.contains(dish)) {
+        if (cookBook.remove(dish)) {
             System.out.println("Selected dish: " + dish.getTitle() + " was removed from cookbook.");
-            cookBook.remove(dish);
-            fileManager.saveCookBookToFile(Settings.getCookBookFileName());
-            return;
-
+            FileManager.saveCookBookToFile(Settings.getCookBookFileName());
+        } else {
+            throw new IllegalArgumentException("Selected dish: " + dish.getTitle() + " not found.");
         }
-        throw new IllegalArgumentException("Selected dish: " + dish.getTitle() + " not found");
-
     }
 
     public static void removeDishFromCookBookByItsId(int selectedId) throws FileManagerException {
         for (Dish item : Dish.cookBook) {
             if (item.getDishId() == selectedId) {
-                System.out.println("You have selected ID: " + selectedId + " This corresponds to dish: " + item.getTitle() + " .Selected dish was removed from cookbook.");
+                System.out.println("You have selected ID: " + selectedId + " This corresponds to dish: "
+                        + item.getTitle() + " .Selected dish was removed from cookbook.");
                 cookBook.remove(item);
-                fileManager.saveCookBookToFile(Settings.getCookBookFileName());
+                FileManager.saveCookBookToFile(Settings.getCookBookFileName());
                 return;
             }
         }
         throw new IllegalArgumentException("Dish with ID " + selectedId + " not found.");
     }
 
-
     @Override
     public String toString() {
         return "Dish{" +
-                "dishId:" + dishId +
-                ", title='" + title + '\'' +
-                ", price=" + price +
+                "dishId: " + dishId +
+                ", title: '" + title + '\'' +
+                ", price: " + price +
                 ", preparationTimeInMinutes=" + preparationTimeInMinutes +
                 ", image='" + image + '\'' +
                 '}';

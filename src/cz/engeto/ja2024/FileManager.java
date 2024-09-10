@@ -61,7 +61,7 @@ public class FileManager {
         }
     }
 
-    public static void LoadAndPrintDishFileContent(String fileName) throws FileManagerException {
+    public static void loadAndPrintDishFileContent(String fileName) throws FileManagerException {
         int lineCounter = 0;
 
         if (isFileEmpty(fileName)) {
@@ -92,7 +92,7 @@ public class FileManager {
         }
     }
 
-    public static void LoadAndPrintOrderFileContent(String fileName) throws FileManagerException, IOException {
+    public static void loadAndPrintOrderFileContent(String fileName) throws FileManagerException, IOException {
         int lineCounter = 0;
 
         if (isFileEmpty(fileName)) {
