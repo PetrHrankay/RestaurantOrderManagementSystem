@@ -1,9 +1,6 @@
 package cz.engeto.ja2024;
 
-import cz.engeto.ja2024.Dish;
-import cz.engeto.ja2024.FileManager;
-
-import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,7 +102,7 @@ public class Order {
     }
 
     public String isFulfilledOrNot() {
-        if (fulfilmentTime != null) {
+        if (fulfilmentTime != null && fulfilmentTime.isBefore(LocalDateTime.now())) {
             return "The order was fulfilled :)";
         } else {
             return "The order has not been fulfilled yet :(";
@@ -118,26 +115,29 @@ public class Order {
 
     public void setFulfilmentTimeToNow() throws FileManagerException {
         this.fulfilmentTime = LocalDateTime.now();
-        fileManager.saveOrderToFile(Settings.getOrdersFilename());
+        FileManager.saveOrdersToFile(Settings.getOrdersFilename());
     }
 
     public static List<Order> getAllOrdersFromReceivedOrdersList() {
         return receivedOrdersList;
     }
 
-    public static void saveReceivedOrdersToFile() {
-        try {
-            fileManager.saveOrderToFile(Settings.getOrdersFilename());
-        } catch (FileManagerException e) {
-            System.err.println("Error saving orders to file: " + e.getMessage());
-            e.printStackTrace();
+    public static void printTotalSpendingForTableNumber(int tableNumber) {
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        for (Order order : Order.getAllOrdersFromReceivedOrdersList()) {
+            if (order.getTableNumber() == tableNumber) {
+                BigDecimal orderPrice = order.getDish().getPrice().multiply(BigDecimal.valueOf(order.getQuantityOrdered()));
+                totalPrice = totalPrice.add(orderPrice);
+            }
         }
+        System.out.println("Total price for table number " + tableNumber + " is " + totalPrice + " CZK.");
     }
+
 
     @Override
     public String toString() {
-        return "Order{" +
-                "orderId=" + orderId +  // Přidání orderId do toString
+        return "Orders{" +
+                "orderId=" + orderId +
                 ", tableNumber=" + tableNumber +
                 ", dish=" + dish +
                 ", quantityOrdered=" + quantityOrdered +
